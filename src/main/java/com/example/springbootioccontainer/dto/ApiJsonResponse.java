@@ -1,38 +1,32 @@
 package com.example.springbootioccontainer.dto;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Getter
-@Data
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 public class ApiJsonResponse{
 
-    private Response response;
-    private Result result;
-    private Structure structure;
-    private String text;
+    public Response response;
 
     @Data
-    static class Response{
+    public class Response{
         private String status;
         private List<Result> result;
     }
 
     @Data
-    static class Result {
+    public class Result {
         private String text;
         private Structure structure;
     }
 
     @Data
-    static class Structure{
+    public class Structure{
         private String level0;
         private String level1;
         private String level2;

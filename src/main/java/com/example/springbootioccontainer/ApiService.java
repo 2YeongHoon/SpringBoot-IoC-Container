@@ -1,15 +1,13 @@
 package com.example.springbootioccontainer;
 
+import com.example.springbootioccontainer.dto.ApiDtoResponse;
 import com.example.springbootioccontainer.dto.ApiJsonResponse;
-import com.fasterxml.jackson.core.JsonParser;
-import java.net.URL;
-import jdk.nashorn.internal.parser.JSONParser;
+import com.example.springbootioccontainer.dto.ApiJsonResponse.Response;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
@@ -48,7 +46,7 @@ public class ApiService {
     @Value("${custom.external.vworld.key}")
     private String VWORLD_KEY;
 
-    public void getCoords(String xpos, String ypos) {
+    public ApiDtoResponse getCoords(String xpos, String ypos) throws Exception {
 
         ApiJsonResponse apiJsonResponse = WebClient.create(VWORLD_URL)
             .get()
@@ -69,24 +67,29 @@ public class ApiService {
             .retrieve()
             .bodyToMono(ApiJsonResponse.class)
             .block();
-        // TODO 파싱 후 반환로직 작성
-        apiJsonResponse.getResponse();
-//        checkResultStatus(apiJsonResponse);
+
+        System.out.println(apiJsonResponse);
+
+        return checkResultStatus(apiJsonResponse);
     }
 
-    // TODO status 검증 로직 작성
-//    private boolean checkResultStatus(ApiJsonResponse apiJsonResponse) {
-//        JSONParser jsonParser = new JSONParser();
-//
-//
-//
-//        System.out.println(apiJsonResponse.getText());
-//        apiJsonResponse.getResponse()
-//        Object b = apiJsonResponse;
-//
-//        return true;
-//    }
+    private ApiDtoResponse checkResultStatus(ApiJsonResponse apiJsonResponse) throws Exception {
+        Response response = apiJsonResponse.getResponse();
+        ApiJsonResponse.Result result = response.getResult().get(0);
+//        ApiDtoResponse res = new ApiDtoResponse();
 
+        if ("OK".equals(response.getStatus())) {
+            return ApiDtoResponse.of(apiJsonResponse);
+        }
 
+        if ("NOT_FOUND".equals(response.getStatus())) {
+            return null;
+        }
 
+        if ("ERROR".equals(response.getStatus())) {
+            throw new Exception();
+        }
+        return null;
+
+    }
 }
